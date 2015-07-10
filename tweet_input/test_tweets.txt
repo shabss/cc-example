@@ -1,0 +1,10 @@
+newline
+endtab	
+		starttab
+		bothtab	
+
+ startspace
+endspace 
+
+ bothspace 
+ bothspace multiple 
