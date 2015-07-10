@@ -20,7 +20,6 @@ public class WordsInsight
     public static final int UNIQUE_WORD_COUNT_THRESH = 4096;
     //tweets can max be 140 chars so max 70 words
     public static final int MAX_UNIQUE_WORD_COUNT_BUCKETS = 70;
-    public static final boolean DO_PROFILE = false;
     
     //Data structures for medians calculation
     protected ArrayList<Float> medians;
@@ -32,13 +31,16 @@ public class WordsInsight
     protected TreeMap<String, Integer> frequency;
     
     //Misc data structures
-    String outDir;
+    String outDir;      //output directory
+    boolean doProfile;  //flag to generate extra data for perf/profiling
+    
     //debugging, profiling data structures
     protected int[] uniqueWordCountPerTweet;
     int uwcOffset;
     BufferedWriter uwcFile;
     
-    public WordsInsight(String outputDir) {
+    public WordsInsight(String outputDir, boolean profile) {
+        doProfile = profile;
         outDir = outputDir;
         //medians code
         medians = new ArrayList<Float>();
@@ -52,7 +54,7 @@ public class WordsInsight
         frequency = new TreeMap<String, Integer>();
         
         //debugging, profiling data structures
-        if (DO_PROFILE) {
+        if (doProfile) {
             uniqueWordCountPerTweet = new int[UNIQUE_WORD_COUNT_THRESH];
             uwcOffset = 0;
             uwcFile = null;
@@ -73,11 +75,20 @@ public class WordsInsight
         
     public static String[] split(String line) {
         //To do: Try out different ways and measure performance
-        return line.split("\\s+");
+        String[] splits = line.trim().split("\\s+");
+        for (String spl : splits) System.out.print("'" + spl + "', ");
+        System.out.println("");
+        
+        //Empty lines will have splits=[""]. return null in this case
+        if ((splits.length == 1) && (splits[0].equals(""))) {
+            splits = null;
+        }
+        
+        return splits;
     }
     
     public void writeToUWCFile() throws IOException {
-        if (!DO_PROFILE) {
+        if (!doProfile) {
             return;
         }
         if (uwcFile == null) {
@@ -116,19 +127,22 @@ public class WordsInsight
     
     public  void CalcMedian(String[] words) throws IOException {
 
-        //find number of unique words in this tweet
-        HashSet<String> set = new HashSet<String>();
-        for (String word: words) set.add(word);
-        int unique = set.size();
+        float medwc = 0;
+        int unique = 0;
         
+        if (words != null) { //if line was not empty
+            //find number of unique words in this tweet
+            HashSet<String> set = new HashSet<String>();
+            for (String word: words) set.add(word);
+            unique = set.size();
+        }   
         //add this tweet word count the bucket
         uniqueWordCountBuckets[unique]++;
-        totalTweets ++;
-        
+
+        totalTweets ++;        
         //find median
         boolean oddTweets = (totalTweets % 2) == 1; 
         int wc1 = -1, wc2 = -1;
-        float medwc;
         medwc = wc1 = getWordCountForTweet((totalTweets / 2) + 1);
         if (!oddTweets) {
             wc2 = getWordCountForTweet(totalTweets / 2);
@@ -136,6 +150,7 @@ public class WordsInsight
             medwc /= 2;
         }
         //System.out.println(unique + ":(" + medwc + ",(" + wc1 + "," + wc2 +"))");
+
         medians.add(new Float(medwc));
 
         //save on disk IO and flush infrequently
@@ -143,7 +158,7 @@ public class WordsInsight
             writeMediansToFile();
         }
         
-        if (DO_PROFILE) {
+        if (doProfile) {
             uniqueWordCountPerTweet[uwcOffset++] = unique;
             if (uwcOffset >= UNIQUE_WORD_COUNT_THRESH) {
                 writeToUWCFile();
@@ -152,6 +167,9 @@ public class WordsInsight
     }
     
     public void CalcFreq(String[] words) {
+        if (words == null) {
+            return;
+        }
         for (String word : words) {
             Integer wf = frequency.get(word);
             if (wf == null) {
@@ -163,8 +181,7 @@ public class WordsInsight
         }
     }
     
-    public void writeToFreqFile() throws IOException
-    {
+    public void writeToFreqFile() throws IOException {
         BufferedWriter freqFile = new BufferedWriter(new FileWriter(outDir + "/ft1.txt"));
         for (String k : frequency.keySet()) {
             freqFile.write(k + " " + frequency.get(k) + "\n");
@@ -173,7 +190,17 @@ public class WordsInsight
         freqFile.close();
     }
     
+    public void writeResults() throws IOException {
+        writeToFreqFile();
+        writeMediansToFile();
+        if (doProfile) {
+            writeToUWCFile();
+        }
+    }
+        
     public static void main(String args[]) {
+        
+        //To Do: Improve parameter parsing
         if (args.length < 2) {
             System.out.println("Usage:\n");
             System.out.println("\tjava WordsInsight <input-file> <output-dir>\n");
@@ -184,8 +211,11 @@ public class WordsInsight
         
         String strFile = args[0];
         String outDir = args[1];
+        //To Do: anything in 3rd argument means do profile. Improve it
+        boolean profile = args.length == 3; 
+        
         BufferedReader file = null;
-        WordsInsight wi = new WordsInsight(outDir);
+        WordsInsight wi = new WordsInsight(outDir, profile);
         
         try {
             file = new BufferedReader(new FileReader(strFile));
@@ -198,12 +228,7 @@ public class WordsInsight
                 wi.CalcFreq(words);
             }
             
-            wi.writeToFreqFile();
-            wi.writeMediansToFile();
-            
-            if (DO_PROFILE) {
-                wi.writeToUWCFile();
-            }
+            wi.writeResults();            
         } catch (FileNotFoundException ex) {
             System.out.println("File " + strFile + " not found.");
             System.out.print(ex);
