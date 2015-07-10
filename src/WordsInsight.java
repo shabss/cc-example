@@ -76,8 +76,9 @@ public class WordsInsight
     public static String[] split(String line) {
         //To do: Try out different ways and measure performance
         String[] splits = line.trim().split("\\s+");
-        for (String spl : splits) System.out.print("'" + spl + "', ");
-        System.out.println("");
+        
+        //for (String spl : splits) System.out.print("'" + spl + "', ");
+        //System.out.println("");
         
         //Empty lines will have splits=[""]. return null in this case
         if ((splits.length == 1) && (splits[0].equals(""))) {
