@@ -31,13 +31,15 @@ public class WordsInsight
     //Data structures for word frequency per tweet
     protected TreeMap<String, Integer> frequency;
     
+    //Misc data structures
+    String outDir;
     //debugging, profiling data structures
     protected int[] uniqueWordCountPerTweet;
     int uwcOffset;
     BufferedWriter uwcFile;
     
-    public WordsInsight() {
-        
+    public WordsInsight(String outputDir) {
+        outDir = outputDir;
         //medians code
         medians = new ArrayList<Float>();
         mediansFile = null;
@@ -79,7 +81,7 @@ public class WordsInsight
             return;
         }
         if (uwcFile == null) {
-            uwcFile = new BufferedWriter(new FileWriter("./tweet_output/uwc.txt"));
+            uwcFile = new BufferedWriter(new FileWriter(outDir + "/uwc.txt"));
         }
         for (int uwc = 0; uwc < uwcOffset; uwc++) {
             uwcFile.write("" + uniqueWordCountPerTweet[uwc] + "\n");
@@ -90,7 +92,7 @@ public class WordsInsight
     
     public void writeMediansToFile() throws IOException {
         if (mediansFile == null) {
-            mediansFile = new BufferedWriter(new FileWriter("./tweet_output/ft2.txt"));
+            mediansFile = new BufferedWriter(new FileWriter(outDir + "/ft2.txt"));
         }
         for (int med = 0; med < medians.size(); med++) {
             mediansFile.write("" + medians.get(med) + "\n");
@@ -163,7 +165,7 @@ public class WordsInsight
     
     public void writeToFreqFile() throws IOException
     {
-        BufferedWriter freqFile = new BufferedWriter(new FileWriter("./tweet_output/ft1.txt"));
+        BufferedWriter freqFile = new BufferedWriter(new FileWriter(outDir + "/ft1.txt"));
         for (String k : frequency.keySet()) {
             freqFile.write(k + " " + frequency.get(k) + "\n");
             //System.out.println(k + "\t\t" + frequency.get(k));
@@ -172,14 +174,18 @@ public class WordsInsight
     }
     
     public static void main(String args[]) {
-        if (args.length < 1) {
-            System.out.println("Please provide an input file\n");
+        if (args.length < 2) {
+            System.out.println("Usage:\n");
+            System.out.println("\tjava WordsInsight <input-file> <output-dir>\n");
+            System.out.println("Example:\n");
+            System.out.println("\tjava WordsInsight ../tweet_input/tweets.txt ../tweet_output/\n");
             return;
         }
         
         String strFile = args[0];
+        String outDir = args[1];
         BufferedReader file = null;
-        WordsInsight wi = new WordsInsight();
+        WordsInsight wi = new WordsInsight(outDir);
         
         try {
             file = new BufferedReader(new FileReader(strFile));
@@ -200,6 +206,7 @@ public class WordsInsight
             }
         } catch (FileNotFoundException ex) {
             System.out.println("File " + strFile + " not found.");
+            System.out.print(ex);
         } catch (IOException ex) {
             System.out.println(ex);
         } finally {
@@ -214,4 +221,5 @@ public class WordsInsight
         }
     }
 }
+
 
