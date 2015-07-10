@@ -1,0 +1,8 @@
+bothspace 2
+bothtab 1
+endspace 1
+endtab 1
+multiple 1
+newline 1
+startspace 1
+starttab 1
