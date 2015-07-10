@@ -3,9 +3,9 @@
 
 uwc <- read.table("tweet_output/uwc.txt")
 uwc <- uwc[,1]
-table(uwc)
 
 uwc.orig <- uwc
+table(uwc.orig)
 uwc <- uwc.orig[1:10000]
 
 uwc.sorted <- c()

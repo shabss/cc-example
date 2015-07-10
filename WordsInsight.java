@@ -58,8 +58,14 @@ public class WordsInsight
     }
     
     public void destruct() throws IOException {
+        if (mediansFile != null) {
+            mediansFile.close();
+            mediansFile = null;
+        }
+        
         if (uwcFile != null) {
             uwcFile.close();
+            uwcFile = null;
         }
     }
         
@@ -108,16 +114,16 @@ public class WordsInsight
     
     public  void CalcMedian(String[] words) throws IOException {
 
-        //find number of unique words
+        //find number of unique words in this tweet
         HashSet<String> set = new HashSet<String>();
         for (String word: words) set.add(word);
         int unique = set.size();
         
-        //add count to bucket
+        //add this tweet word count the bucket
         uniqueWordCountBuckets[unique]++;
         totalTweets ++;
         
-        //now find median
+        //find median
         boolean oddTweets = (totalTweets % 2) == 1; 
         int wc1 = -1, wc2 = -1;
         float medwc;
@@ -129,7 +135,8 @@ public class WordsInsight
         }
         //System.out.println(unique + ":(" + medwc + ",(" + wc1 + "," + wc2 +"))");
         medians.add(new Float(medwc));
-        
+
+        //save on disk IO and flush infrequently
         if (medians.size() >= MEDIANS_FLUSH_THRESH) {
             writeMediansToFile();
         }
@@ -154,7 +161,7 @@ public class WordsInsight
         }
     }
     
-    public void Results() throws IOException
+    public void writeToFreqFile() throws IOException
     {
         BufferedWriter freqFile = new BufferedWriter(new FileWriter("./tweet_output/ft1.txt"));
         for (String k : frequency.keySet()) {
@@ -165,6 +172,11 @@ public class WordsInsight
     }
     
     public static void main(String args[]) {
+        if (args.length < 1) {
+            System.out.println("Please provide an input file\n");
+            return;
+        }
+        
         String strFile = args[0];
         BufferedReader file = null;
         WordsInsight wi = new WordsInsight();
@@ -180,7 +192,7 @@ public class WordsInsight
                 wi.CalcFreq(words);
             }
             
-            wi.Results();
+            wi.writeToFreqFile();
             wi.writeMediansToFile();
             
             if (DO_PROFILE) {
