@@ -8,8 +8,9 @@ cd src
 mkdir -p ../test_output
 javac WordsInsight.java
 java WordsInsight ../tweet_input/test_tweets.txt ../test_output profile
-diff ../test_output/fts1.txt ../test_output/test1-1.txt
-diff ../test_output/fts2.txt ../test_output/test1-2.txt
+diff ../test_output/ft1.txt ../test_output/test1-1.txt
+diff ../test_output/ft2.txt ../test_output/test1-2.txt
+diff ../test_output/uwc.txt ../test_output/test1-uwc.txt
 cd ..
 
 
