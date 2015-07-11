@@ -18,8 +18,10 @@ public class WordsInsight
     //Constants
     public static final int MEDIANS_FLUSH_THRESH = 100000; //make sure this is even number
     public static final int UNIQUE_WORD_COUNT_THRESH = 4096;
-    //tweets can max be 140 chars so max 70 words
-    public static final int MAX_UNIQUE_WORD_COUNT_BUCKETS = 70;
+    //tweets can max be 140 chars 
+    //so max 70 words including zero
+    //make it 128 on safe size
+    public static final int MAX_UNIQUE_WORD_COUNT_BUCKETS = 128;
     
     //Data structures for medians calculation
     protected ArrayList<Float> medians;
@@ -137,7 +139,12 @@ public class WordsInsight
             for (String word: words) set.add(word);
             unique = set.size();
         }   
+        
         //add this tweet word count the bucket
+        //treat overflows as max
+        if (unique >= MAX_UNIQUE_WORD_COUNT_BUCKETS) {
+            unique = MAX_UNIQUE_WORD_COUNT_BUCKETS - 1;
+        }
         uniqueWordCountBuckets[unique]++;
 
         totalTweets ++;        

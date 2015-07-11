@@ -1,11 +1,12 @@
 
 
-
-uwc <- read.table("tweet_output/uwc.txt")
+uwc <- read.table("../test_output/uwc.txt")
 uwc <- uwc[,1]
-
+summary(uwc)
 uwc.orig <- uwc
-table(uwc.orig)
+buckets <- as.data.frame(table(uwc.orig))
+names(buckets) <- c("word.count", "freq")
+buckets
 uwc <- uwc.orig[1:10000]
 
 uwc.sorted <- c()
