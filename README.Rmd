@@ -8,6 +8,8 @@ output: html_document
 ## Executive Summary
 This is a submission of The InsightDataEngineering Coding Challenge. The program written in java is memory efficient and high performing. Twitter feed of 2.5 million tweets was analyzed and design considerations were made based on this analysis. It is calculated that 2.5 million tweets will use about 140 MB of memory. Larger amounts of data will not use much more memory than this.
 
+The program is tested on Oracle JRE 1.7 32 bit on Windows 7,  OpenJDK v1.7 64 bit on CentOS 7 and OpenJDK 1.7 32 bit on Fedora 15.
+
 ## The Challenge
 
 This challenge is to implement two features:
