@@ -90,18 +90,12 @@ Following performance considerations were made when designing the solution:
 ### Feature 1
 
 We obtained twitter data with following characteristics:
+```{r warning=FALSE, cache=TRUE}
 
-```r
 setwd("src/")
 tfile <- "../../edu/ds-capstone/Coursera-SwiftKey/final/en_US/en_US.twitter.txt"
 (o <- system(paste("wc -lc", tfile), intern=TRUE))
-```
-
-```
-## [1] "  2360148 167105338 ../../edu/ds-capstone/Coursera-SwiftKey/final/en_US/en_US.twitter.txt"
-```
-
-```r
+ 
 o <- system(paste("java WordsInsight", tfile,
                   "../test_output/ profile", sep=" "), intern=TRUE)
 setwd("..")
@@ -109,8 +103,7 @@ setwd("..")
 
 Running the code with profiling enabled on above twitter feed produced the appropiate f1.txt. Analyzing f1.txt yeilds:
 
-
-```r
+```{r warning=FALSE, cache=TRUE}
 library(stringr)
 wordFreq <- readLines("test_output/ft1.txt")
 wordFreq <- str_match(wordFreq, "(.+) ([0-9]+)")
@@ -125,13 +118,7 @@ bytes <- c(totBytesWords, totBytesFreq, totalBytes)
 bytesMB <- bytes / 10^6
 
 cbind(types, bytes, bytesMB)
-```
 
-```
-##      types        bytes       bytesMB     
-## [1,] "Words"      "134371579" "134.371579"
-## [2,] "FreqCounts" "8640696"   "8.640696"  
-## [3,] "Total"      "143012275" "143.012275"
 ```
 
 Thus for feature f1, the total bytes required for typical twitter ascii data would be around 140 MB, which is within range of most machines. This number should be similar for larger data feeds, since the frequency is stored in a dictionary object.
@@ -142,61 +129,14 @@ Note that this just computes the memory requirements based on the data. We have 
 
 When run with profiling enabled, the program produces uwc.txt, which contains the unique word count for each tweet. Analyzing this data:
 
-
-```r
+```{r warning=FALSE, cache=TRUE}
 uwc <- read.table("test_output/uwc.txt")
 uwc <- uwc[,1]
 summary(uwc)
-```
 
-```
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##    1.00    7.00   12.00   12.21   17.00   37.00
-```
-
-```r
 buckets <- as.data.frame(table(uwc))
 names(buckets) <- c("word.count", "freq")
 buckets
-```
-
-```
-##    word.count   freq
-## 1           1   2080
-## 2           2  58425
-## 3           3 101575
-## 4           4 118971
-## 5           5 124261
-## 6           6 132944
-## 7           7 131869
-## 8           8 129644
-## 9           9 127359
-## 10         10 123221
-## 11         11 118091
-## 12         12 113127
-## 13         13 109043
-## 14         14 104538
-## 15         15 102000
-## 16         16  98225
-## 17         17  97175
-## 18         18  94843
-## 19         19  93014
-## 20         20  89057
-## 21         21  81193
-## 22         22  70103
-## 23         23  54792
-## 24         24  38212
-## 25         25  23986
-## 26         26  12960
-## 27         27   6058
-## 28         28   2309
-## 29         29    766
-## 30         30    230
-## 31         31     52
-## 32         32     16
-## 33         33      7
-## 34         34      1
-## 35         37      1
 ```
 
 Given that a tweet can be at most 140 characters the maximum number of unique words in it can 70. If we allow for zero lenght tweets then we need a data strucutre of maximum 71 buckets to represent word count in tweets. 

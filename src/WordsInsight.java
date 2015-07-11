@@ -30,7 +30,7 @@ public class WordsInsight
     protected int totalTweets;
     
     //Data structures for word frequency per tweet
-    protected TreeMap<String, Integer> frequency;
+    protected TreeMap<String, Long> frequency;
     
     //Misc data structures
     String outDir;      //output directory
@@ -53,7 +53,7 @@ public class WordsInsight
         totalTweets = 0;
 
         //word frequency code
-        frequency = new TreeMap<String, Integer>();
+        frequency = new TreeMap<String, Long>();
         
         //debugging, profiling data structures
         if (doProfile) {
@@ -75,8 +75,11 @@ public class WordsInsight
         }
     }
         
-    public static String[] split(String line) {
+    public String[] split(String line) {
         //To do: Try out different ways and measure performance
+        if (doProfile) {
+            line = line.toLowerCase();
+        }
         String[] splits = line.trim().split("\\s+");
         
         //for (String spl : splits) System.out.print("'" + spl + "', ");
@@ -179,12 +182,12 @@ public class WordsInsight
             return;
         }
         for (String word : words) {
-            Integer wf = frequency.get(word);
+            Long wf = frequency.get(word);
             if (wf == null) {
-                wf = new Integer(1);
+                wf = new Long(1);
                 frequency.put(word, wf);
             } else {
-                frequency.put(word, new Integer(wf.intValue() + 1));
+                frequency.put(word, new Long(wf.intValue() + 1));
             }
         }
     }
@@ -230,7 +233,7 @@ public class WordsInsight
             String line = null;
         
             while ((line = file.readLine()) != null) {
-                String[] words = split(line);
+                String[] words = wi.split(line);
                 //for (String word : words) System.out.print(word); System.out.println("");
                 wi.CalcMedian(words);
                 wi.CalcFreq(words);

@@ -1,4 +1,14 @@
 
+library(stringr)
+wordFreq <- readLines("test_output/ft1.txt")
+wordFreq <- str_match(wordFreq, "(.+) ([0-9]+)")
+nrow(wordFreq); sum(complete.cases(wordFreq));head(wordFreq)
+wordFreq <- as.data.frame(wordFreq[complete.cases(wordFreq), c(2,3)], stringsAsFactors=FALSE)
+wordFreq[,2] <- as.integer(wordFreq[,2])
+nrow(wordFreq); sum(complete.cases(wordFreq));head(wordFreq)
+
+totBytes <- sum(nchar(wordFreq[,1]) * wordFreq[,2])
+totBytes / 10^6
 
 uwc <- read.table("../test_output/uwc.txt")
 uwc <- uwc[,1]
