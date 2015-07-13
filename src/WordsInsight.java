@@ -26,8 +26,8 @@ public class WordsInsight
     //Data structures for medians calculation
     protected ArrayList<Float> medians;
     BufferedWriter mediansFile;
-    protected int[] uniqueWordCountBuckets;
-    protected int totalTweets;
+    protected long[] uniqueWordCountBuckets;
+    protected long totalTweets;
     
     //Data structures for word frequency per tweet
     protected TreeMap<String, Long> frequency;
@@ -47,7 +47,7 @@ public class WordsInsight
         //medians code
         medians = new ArrayList<Float>();
         mediansFile = null;
-        uniqueWordCountBuckets = new int[MAX_UNIQUE_WORD_COUNT_BUCKETS]; 
+        uniqueWordCountBuckets = new long[MAX_UNIQUE_WORD_COUNT_BUCKETS]; 
         for (int i = 0; i < uniqueWordCountBuckets.length; i++)  
             uniqueWordCountBuckets[i] = 0;
         totalTweets = 0;
@@ -118,7 +118,7 @@ public class WordsInsight
         medians.clear();
     }
         
-    public int getWordCountForTweet(int tweetNumber) {
+    public int getWordCountForTweet(long tweetNumber) {
         int bucket = 0;
         for (; bucket < uniqueWordCountBuckets.length; bucket++) {
             //System.out.println("getWC:" + tweetNumber + "," + 
